@@ -3,9 +3,7 @@
 </script>
 
 <template>
-  <div>
-    <UploadLoader />
-  </div>
+  <UploadSuccess />
 </template>
 
 <style scoped>

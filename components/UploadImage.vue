@@ -3,8 +3,8 @@
 const router = useRouter();
 const fileInput = ref<HTMLInputElement | null>(null);
 const isDragOver = ref(false);
-const selectedFile = ref<File | null>(null);
-const errorMessage = ref<string | null>(null);
+
+const uploadStore = useUploadStore();
 
 const validateFile = (file: File) => {
   const allowedTypes = ['image/jpg', 'image/png', 'image/gif'];
@@ -25,11 +25,10 @@ const onFileSelect = async(event: Event) => {
     const file = input.files[0];
     const error = validateFile(file);
     if (error) {
-      errorMessage.value = error;
-      selectedFile.value = null;
+      uploadStore.setUploadFailed(error);
+      uploadStore.selectedFile = null;
     } else {
-      selectedFile.value = file;
-      errorMessage.value = null;
+      uploadStore.setSelectedFile(file);
       await uploadFile(file);
     }
   }
@@ -44,11 +43,10 @@ const onFileDrop = async(event: DragEvent) => {
     const file = files[0];
     const error = validateFile(file);
     if (error) {
-      errorMessage.value = error;
-      selectedFile.value = null;
+      uploadStore.setUploadFailed(error);
+      uploadStore.selectedFile = null;
     } else {
-      selectedFile.value = file;
-      errorMessage.value = null;
+      uploadStore.setSelectedFile(file);
       await uploadFile(file);
     }
   }
@@ -59,8 +57,10 @@ const triggerFileInput = () => {
 }
 
 const uploadFile = async (file: File) => {
+  uploadStore.startUploading();
   const formData = new FormData();
   formData.append('file', file);
+
   try {
     const response = await fetch('/api/upload', {
       method: 'POST',
@@ -68,16 +68,16 @@ const uploadFile = async (file: File) => {
     });
 
     if (response.ok) {
+      const data = await response.json();
+      uploadStore.setUploadSuccess(data.imageUrl);
       router.push('/upload')
     } else {
-      throw new Error('Upload failed');
+      const errorMessage = await response.text();  // 获取错误信息
+      throw new Error(errorMessage || 'Upload failed');
     }
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    } else {
-      console.error("An unknown error occurred.");
-    }
+    uploadStore.setUploadFailed('Upload failed. Please try again.');
+    console.error(error);
   }
 }
 </script>
@@ -86,13 +86,13 @@ const uploadFile = async (file: File) => {
   <div class="upload-container" @dragover.prevent @drop="onFileDrop">
     <div class="upload-area" @click="triggerFileInput" :class="{ 'drag-over': isDragOver}">
       <img src="/exit.svg" alt="exit" class="exit-icon"/>
-      <p v-if="!selectedFile" class="upload-text">
+      <p v-if="!uploadStore.selectedFile" class="upload-text">
         Drag & drop a file or
         <span class="browse-link" @click="triggerFileInput">browse files</span>
       </p>
       <input ref="fileInput" type="file" accept="image/*" @change="onFileSelect" class="file-input" />
-      <p v-if="selectedFile" class="file-name">{{ selectedFile.name }}</p>
-      <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
+      <p v-if="uploadStore.selectedFile" class="file-name">{{ uploadStore.selectedFile.name }}</p>
+      <p v-if="uploadStore.errorMessage" class="error-text">{{ uploadStore.errorMessage }}</p>
       <div class="file-restrictions">
         <p>JPG, PNG or GIF - Max file size 2MB</p>
       </div>

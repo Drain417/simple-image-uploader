@@ -4,20 +4,25 @@ export const useUploadStore = defineStore('upload', {
         uploadSuccess: false,
         uploadedImageUrl: '',
         selectedFile: null as File | null,
+        errorMessage: null as string | null,
     }),
     actions: {
         startUploading() {
             this.isUploading = true;
             this.uploadSuccess = false;
+            this.errorMessage = null;
         },
         setUploadSuccess(imageUrl: string) {
             this.isUploading = false;
             this.uploadSuccess = true;
             this.uploadedImageUrl = imageUrl;
+            console.log('Upload success:', this.uploadSuccess);
         },
-        setUploadFailed() {
+        setUploadFailed(message: string) {
             this.isUploading = false;
             this.uploadSuccess = false;
+            this.errorMessage = message;
+            console.log('Upload failed:', this.errorMessage);
         },
         setSelectedFile(file: File) {
             this.selectedFile = file;
@@ -27,6 +32,7 @@ export const useUploadStore = defineStore('upload', {
             this.uploadSuccess = false;
             this.uploadedImageUrl = '';
             this.selectedFile = null;
+            this.errorMessage = null;
         },
     },
 });
