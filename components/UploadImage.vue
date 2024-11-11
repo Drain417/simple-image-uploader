@@ -5,9 +5,10 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const isDragOver = ref(false);
 
 const uploadStore = useUploadStore();
+const themeStore = useThemeStore();
 
 const validateFile = (file: File) => {
-  const allowedTypes = ['image/jpg', 'image/png', 'image/gif'];
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
   const maxSize = 2 * 1024 * 1024;
 
   if (!allowedTypes.includes(file.type)) {
@@ -83,8 +84,8 @@ const uploadFile = async (file: File) => {
 </script>
 
 <template>
-  <div class="upload-container" @dragover.prevent @drop="onFileDrop">
-    <div class="upload-area" @click="triggerFileInput" :class="{ 'drag-over': isDragOver}">
+  <div class="upload-container" @dragover.prevent @drop="onFileDrop" :style="{ backgroundColor: themeStore.isDarkMode? '#212936' : 'white' }">
+    <div class="upload-area" @click="triggerFileInput" :class="{ 'drag-over': isDragOver}" :style="{ borderColor: themeStore.isDarkMode? '#4D5562' : '#E5E7EB' }">
       <img src="/exit.svg" alt="exit" class="exit-icon"/>
       <p v-if="!uploadStore.selectedFile" class="upload-text">
         Drag & drop a file or

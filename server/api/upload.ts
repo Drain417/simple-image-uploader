@@ -28,7 +28,12 @@ export default defineEventHandler(async(event) => {
 
         await fs.promises.writeFile(filePath, buffer);
 
-        const imageUrl = `/uploads/${file.name}`;
+        const req = event.node.req;
+
+        const host = req.headers.host;
+        const protocol = (req.headers['x-forwarded-proto'] as string) || 'http';
+
+        const imageUrl = `${protocol}://${host}/uploads/${file.name}`;
         return { imageUrl };
     } catch (error) {
         console.error('Upload failed with error:', error);
