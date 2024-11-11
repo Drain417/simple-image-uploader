@@ -1,1 +1,4 @@
-基于对服务器端的不理解，该项目的效率较低，且前端的实现也受制于后端。目前未完工。
+该项目用于练习Nuxtjs，SSR，Pinia状态管理，vue-router路由，layout定制页面布局，typescript类型安全和server/api。
+nuxt使用的服务器工具h3框架和nodejs不同使得配置api时焦头烂额，但最后坚持只使用h3框架中的方法和对象搭建好了api。
+关于github page只托管静态文件的问题，也许需要配置api路由才能在github page上应用api。
+该项目处于几乎结束状态。
